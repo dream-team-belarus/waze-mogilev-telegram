@@ -1,4 +1,4 @@
-# Waze-Police  <img src="https://github.com/chicagomg/waze-mogilev/workflows/CI/badge.svg?branch=main"><br>
+# Waze-Police  <img src="https://github.com/dream-eam-belarus/waze-mogilev-telegram/workflows/CI/badge.svg?branch=main"><br>
 
 ## works in Mogilev county only.
 
