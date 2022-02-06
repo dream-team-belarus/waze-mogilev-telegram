@@ -1,0 +1,18 @@
+stages:
+  - deploy
+deploy_staging:
+  stage: deploy
+  tags:
+    - docker
+  before_script:
+    - apt-get update && apt-get install -y openssh-client zip
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - sh compress.sh
+    - scp -o StrictHostKeyChecking=no -P 22 waze-mogilev.zip ubuntu@$DEPLOY_HOST:/home/ubuntu/$APP_NAME-$CI_PIPELINE_ID.zip
+    - ssh -i StrictHostKeyChecking=no -p 22 ubuntu@$DEPLOY_HOST 'rm -rf /home/ubuntu/waze && mkdir -p /home/ubuntu/waze'
+    - ssh -i StrictHostKeyChecking=no -p 22 ubuntu@$DEPLOY_HOST 'cd /home/ubuntu && unzip "$(ls -tr *zip | tail -n1)" -d /home/ubuntu/waze'
+    - ssh -i StrictHostKeyChecking=no -p 22 ubuntu@$DEPLOY_HOST "cd /home/ubuntu/waze && sudo docker-compose up -d --build --remove-orphans waze-police waze-clean"

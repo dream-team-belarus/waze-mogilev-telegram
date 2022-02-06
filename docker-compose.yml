@@ -1,0 +1,14 @@
+version: "3"
+services:
+  waze-police:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: waze-police
+    restart: always
+  waze-clean:
+    build:
+      context: ./waze-clean/
+      dockerfile: Dockerfile
+    container_name: waze-clean
+    restart: always
