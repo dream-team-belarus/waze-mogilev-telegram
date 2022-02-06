@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: copy all files to runner
+        uses: actions/checkout@v1
+      - name: install ssh key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }} 
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_DEBUG: false
+          envkey_api_id              : ${{ secrets.API_ID }}
+          envkey_api_hash            : ${{ secrets.API_HASH }}
+          envkey_feed_clean_login    : ${{ secrets.FEED_CLEAN_LOGIN }}
+          envkey_feed_clean_password : ${{ secrets.FEED_CLEAN_PASSWORD }}
+          envkey_db_user             : ${{ secrets.DB_USER }}
+          envkey_db_pass             : ${{ secrets.DB_PASS }}
+          envkey_db_conf             : ${{ secrets.DB_CONF }}
+          envkey_feed_main_login     : ${{ secrets.FEED_MAIN_LOGIN }}
+          envkey_feed_main_password  : ${{ secrets.FEED_MAIN_PASSWORD }}
+      - name: check
+        run : cp .env waze-clean/
+      - name: Compress files in archive
+        run :
+          sh compress.sh
+      - name: Deploy to server
+        env:
+          APP_NAME    : "waze-mogilev"
+        run : |
+          scp -o StrictHostKeyChecking=no -P 22 $APP_NAME.zip ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/$APP_NAME-${{ github.sha }}.zip
+          ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'rm -rf /home/ubuntu/waze && mkdir -p /home/ubuntu/waze'
+          ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'cd /home/ubuntu && unzip "$(ls -tr *zip | tail -n1)" -d /home/ubuntu/waze'
+          ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} "cd /home/ubuntu/waze && sudo docker-compose up -d --build --remove-orphans waze-police waze-clean"
