@@ -9,4 +9,4 @@ COPY .env ./
 COPY *.py ./
 COPY *.session ./
 
-ENTRYPOINT ["python", "main.py"]
+#ENTRYPOINT ["python", "main.py"]
