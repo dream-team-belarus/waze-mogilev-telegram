@@ -31,7 +31,7 @@ async def handler(event):
     for b in olimpiada.drops:
       if a == b:
         x.append(a)
-        break
+        break 
   y = []
   for a in message_split:
     for b in olimpiada.actions:
