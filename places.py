@@ -264,7 +264,7 @@ def place07(event, live_time, life_time, message_low, t_fe_time):
             'LoginForm[password]': os.getenv("FEED_MAIN_PASSWORD"),
         }
         s.post("https://feed.waze.su/ru/site/login/*", data=payload)
-        batch = {
+        batch = { 
             'Feed[polyline]': '53.912452 30.317718',
             'Feed[starttime]': live_time,
             'Feed[endtime]': life_time,
