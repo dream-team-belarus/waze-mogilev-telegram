@@ -9,3 +9,4 @@ zip -r $ZIP_FILE \
     ./Dockerfile \
     ./*.session \
     ./docker-compose.yml \
+    ./__pycache__ \
