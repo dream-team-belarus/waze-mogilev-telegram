@@ -7,6 +7,6 @@ zip -r $ZIP_FILE \
     ./*.py \
     ./waze-clean \
     ./Dockerfile \
-    ./*.session \
+    ./__pycache__.zip \
     ./docker-compose.yml \
-    ./__pycache__ \
+
