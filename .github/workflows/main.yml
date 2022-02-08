@@ -41,5 +41,5 @@ jobs:
           scp -o StrictHostKeyChecking=no -P 22 $APP_NAME.zip ubuntu@${{ secrets.DEPLOY_HOST }}:/home/ubuntu/$APP_NAME-${{ github.sha }}.zip
           ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'rm -rf /home/ubuntu/waze && mkdir -p /home/ubuntu/waze'
           ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'cd /home/ubuntu && unzip "$(ls -tr *zip | tail -n1)" -d /home/ubuntu/waze'
-          ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'cd /home/ubuntu/waze && unzip __pycache__.zip'
+          ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} 'cd /home/ubuntu/waze && unzip __pycache__.zip && mkdir -p __pycache__ && mv *.pyc __pycache__/'
           ssh -i StrictHostKeyChecking=no -p 22 ubuntu@${{ secrets.DEPLOY_HOST }} "cd /home/ubuntu/waze && sudo docker-compose up -d --build --remove-orphans waze-police waze-clean"
