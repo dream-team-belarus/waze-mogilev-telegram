@@ -25,7 +25,6 @@ async def handler(event):
   for x in arr:
     message_low = message_low.replace(x, "")
   message_split = message_low.split(' ')
-  # отметаем всякий мусор типа спасибо
   x = []
   for a in message_split:
     for b in olimpiada.drops:
