@@ -86,16 +86,20 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           'Feed[direction]': 'BOTH_DIRECTIONS',
           'Feed[type]': action,
           'Feed[subtype]': subtype,
-          'Feed[description]': 'ДТП и ЧП Могилев',
+          'Feed[description]': 'ДТП и ЧП Могилев TELEGRAM',
           'Feed[comment]': message_low,
           'Feed[street]': i['street'],
         }
         response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
         result = str(set(re.findall(r"\b\w+\b=\d{5}", str(response.content))))
         feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
+        dublicat_search = mongo_db_sscript.success.find({"message": message_low}, {"message":1})
+        for i in dublicat_search:
+          if i:
+            print('record already exist so will skip this step')
+            break
+        print('second chance')
         successful_action(feed_id, live_time, event, message_split, t_fe_time)
         break
       return feed_id
-
-
 client.run_until_disconnected()
