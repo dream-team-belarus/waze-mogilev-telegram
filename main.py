@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta
-import places
 import mongo_db_script
 import mongo_db_source
 from telethon import TelegramClient, events, sync
-import olimpiada
 import requests
 import os
 import re
