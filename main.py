@@ -68,38 +68,36 @@ def wrong_action(event, live_time, message_split):
 
 
 def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
-  for i in message_split:
-    place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
-    for i in place_search:
-      if i:
-        message_split = message_low.split(" ")
-        s = requests.session()
-        payload = {
-          'LoginForm[username]': os.getenv("FEED_MAIN_LOGIN"),
-          'LoginForm[password]': os.getenv("FEED_MAIN_PASSWORD"),
-        }
-        s.post("https://feed.waze.su/ru/site/login/*", data=payload)
-        batch = {
-          'Feed[polyline]': i['coordinate'],
-          'Feed[starttime]': live_time,
-          'Feed[endtime]': life_time,
-          'Feed[direction]': 'BOTH_DIRECTIONS',
-          'Feed[type]': action,
-          'Feed[subtype]': subtype,
-          'Feed[description]': 'ДТП и ЧП Могилев TELEGRAM',
-          'Feed[comment]': message_low,
-          'Feed[street]': i['street'],
-        }
-        response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
-        result = str(set(re.findall(r"\b\w+\b=\d{5}", str(response.content))))
-        feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
-        dublicat_search = mongo_db_sscript.success.find({"message": message_low}, {"message":1})
-        for i in dublicat_search:
-          if i:
-            print('record already exist so will skip this step')
-            break
-        print('second chance')
-        successful_action(feed_id, live_time, event, message_split, t_fe_time)
-        break
-      return feed_id
+  dublicat_search = mongo_db_script.success.find({"message": message_low}, {"message":1})
+  for i in dublicat_search:
+    if i:
+      print('record already exist so will skip this step')
+    for i in message_split:
+      place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
+      for i in place_search:
+        if i:
+          message_split = message_low.split(" ")
+          s = requests.session()
+          payload = {
+            'LoginForm[username]': os.getenv("FEED_MAIN_LOGIN"),
+            'LoginForm[password]': os.getenv("FEED_MAIN_PASSWORD"),
+          }
+          s.post("https://feed.waze.su/ru/site/login/*", data=payload)
+          batch = {
+            'Feed[polyline]': i['coordinate'],
+            'Feed[starttime]': live_time,
+            'Feed[endtime]': life_time,
+            'Feed[direction]': 'BOTH_DIRECTIONS',
+            'Feed[type]': action,
+            'Feed[subtype]': subtype,
+            'Feed[description]': 'ДТП и ЧП Могилев TELEGRAM',
+            'Feed[comment]': message_low,
+            'Feed[street]': i['street'],
+          }
+          response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
+          result = str(set(re.findall(r"\b\w+\b=\d{5}", str(response.content))))
+          feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
+          successful_action(feed_id, live_time, event, message_split, t_fe_time)
+          break
+        return feed_id
 client.run_until_disconnected()
