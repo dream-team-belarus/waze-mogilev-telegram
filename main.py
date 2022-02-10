@@ -40,6 +40,7 @@ async def handler(event):
         action="POLICE"
         subtype="POLICE_VISIBLE"
         caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype)
+        client.send_message('alexeyryabtsev', event)
         break
     for i in accident_search:
       if i:
