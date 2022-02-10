@@ -43,7 +43,7 @@ async def handler(event):
         break
     for i in accident_search:
       if i:
-        action="accident"
+        action="ACCIDENT"
         subtype="ACCIDENT_MINOR"
         caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype)
         break
