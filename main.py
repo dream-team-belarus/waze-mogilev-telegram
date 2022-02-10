@@ -62,16 +62,18 @@ def successful_action(feed_id, live_time, event, message_split, t_fe_time):
     print('---')
 
 
-def wrong_action(event, live_time, message_split):
-    print('wrong place')
-    mongo_db_script.wrong_place.insert_one({"feed_time": live_time, "message": event.text, "fabrika": message_split})
-
-
-def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
-  dublicat_search = mongo_db_script.success.find({"message": message_low}, {"message":1})
-  for i in dublicat_search:
+def duplicate(message_low):
+  dublicate_search = mongo_db_script.success.find({"message": message_low}, {"message":1})
+  for i in dublicate_search:
     if i:
       print('record already exist so will skip this step')
+      return True
+    return False
+
+def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
+  result = duplicate(message_low)
+  if not result:
+    print('previous record did not find, so will add:')
     for i in message_split:
       place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
       for i in place_search:
@@ -99,5 +101,5 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
           successful_action(feed_id, live_time, event, message_split, t_fe_time)
           break
-        return feed_id
+    return
 client.run_until_disconnected()
