@@ -69,7 +69,7 @@ def wrong_action(event, live_time, message_split):
 
 def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
   for i in message_split:
-    place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1})
+    place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
     for i in place_search:
       if i:
         message_split = message_low.split(" ")
@@ -88,7 +88,7 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           'Feed[subtype]': subtype,
           'Feed[description]': 'ДТП и ЧП Могилев',
           'Feed[comment]': message_low,
-          'Feed[street]': 'Могилев',
+          'Feed[street]': i['street'],
         }
         response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
         result = str(set(re.findall(r"\b\w+\b=\d{5}", str(response.content))))
