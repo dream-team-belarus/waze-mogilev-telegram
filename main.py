@@ -62,8 +62,8 @@ def successful_action(feed_id, live_time, event, message_split, t_fe_time):
     print('---')
 
 
-def duplicate(message_low):
-  dublicate_search = mongo_db_script.success.find({"message": message_low}, {"message":1})
+def duplicate(event):
+  dublicate_search = mongo_db_script.success.find({"message": event.text}, {"message":1})
   for i in dublicate_search:
     if i:
       print('record already exist so will skip this step')
@@ -71,7 +71,7 @@ def duplicate(message_low):
     return False
 
 def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
-  result = duplicate(message_low)
+  result = duplicate(event)
   if not result:
     print('previous record did not find, so will add:')
     for i in message_split:
@@ -92,8 +92,8 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
             'Feed[direction]': 'BOTH_DIRECTIONS',
             'Feed[type]': action,
             'Feed[subtype]': subtype,
-            'Feed[description]': 'ДТП и ЧП Могилев TELEGRAM',
-            'Feed[comment]': message_low,
+            'Feed[description]': 'TELEGRAM',
+            'Feed[comment]': event.text,
             'Feed[street]': i['street'],
           }
           response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
