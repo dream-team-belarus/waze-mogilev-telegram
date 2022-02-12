@@ -21,7 +21,7 @@ async def handler(event):
   t_fe_time = t_ve_time + timedelta(minutes=30)
   life_time = t_fe_time.strftime("%y-%m-%dT%H:%M:%S")
   message_low = event.text.lower()
-  arr = ["!", ".", "-", "?", ",", "🚔", "+"]
+  arr = ['!', '.', '-', '?', ',', '🚔', '+', '"']
   for x in arr:
     message_low = message_low.replace(x, "")
   message_split = message_low.split(' ')
