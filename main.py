@@ -23,7 +23,7 @@ async def handler(event):
   message_low = event.text.lower()
   arr = ['!', '.', '-', '?', ',', '🚔', '+', '"']
   for x in arr:
-    message_low = message_low.replace(x, "")
+    message_low = message_low.replace(x, " ")
   message_split = message_low.split(' ')
   #
   for i in message_split:
