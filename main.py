@@ -1,3 +1,4 @@
+'''
 from datetime import datetime, timedelta
 import mongo_db_script
 import mongo_db_source
@@ -103,3 +104,4 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           break
     return
 client.run_until_disconnected()
+'''
