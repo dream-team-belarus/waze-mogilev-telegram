@@ -26,8 +26,35 @@ async def handler(event):
   for x in arr:
     message_low = message_low.replace(x, " ")
   message_split = message_low.split(' ')
-  print(message_split)
-  print(type(message_split))
+  
+  action = "empty"
+
+  for i in message_split:
+    while action == "empty":
+      search = mongo_db_source.actions.find({'words': i})
+      for a in search:
+        if a["action"] == "drop":
+          action = "drop"
+        elif a["action"] == "police":
+          action = "police"
+      break
+  print("action: ", action)
+  #------------------------------------------------------------
+
+  place = "empty"
+
+  for i in message_split:
+    while place == "empty":
+      search = mongo_db_source.places.find({'place': i})
+      for a in search:
+        if a["_id"] != 0:
+          place = a["_id"]
+      break
+  print("place : ", place)
+
+  #============================================================
+
+  
 
   #for i in message_split:
   #  drop_search = mongo_db_source.actions.find({"drop": i}, {"drop":1})
