@@ -1,4 +1,3 @@
-'''
 from datetime import datetime, timedelta
 import mongo_db_script
 import mongo_db_source
@@ -6,6 +5,7 @@ from telethon import TelegramClient, events, sync
 import requests
 import os
 import re
+import pymongo
 from dotenv import load_dotenv
 
 
@@ -15,7 +15,7 @@ client.start()
 client.send_message('alexeyryabtsev', '🚔')
 
 
-@client.on(events.NewMessage(pattern=r'(?i).*\b()\b'))
+@client.on(events.NewMessage(pattern=r"(?i).*\b()\b"))
 async def handler(event):
   t_ve_time = datetime.now() + timedelta(hours=3, minutes=0, seconds=5)
   live_time = t_ve_time.strftime("%y-%m-%dT%H:%M:%S")
@@ -26,7 +26,14 @@ async def handler(event):
   for x in arr:
     message_low = message_low.replace(x, " ")
   message_split = message_low.split(' ')
+
+  for i in message_split:
+    results = mongo_db_source.places.find({"place": i})
+    for result in results:
+      print(result)
+
   #
+  '''
   for i in message_split:
     drop_search = mongo_db_source.actions.find({"drop": i}, {"drop":1})
     police_search = mongo_db_source.actions.find({"police": i}, {"police":1})
@@ -51,7 +58,7 @@ async def handler(event):
     for i in help_search:
       if i:
         print(event.text,' dropped. Temporary help is not support')
-        break
+        break'''
 
 
 def successful_action(feed_id, live_time, event, message_split, t_fe_time):
@@ -79,6 +86,8 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
       place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
       for i in place_search:
         if i:
+          print("message ok")
+          '''
           message_split = message_low.split(" ")
           s = requests.session()
           payload = {
@@ -102,6 +111,6 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
           successful_action(feed_id, live_time, event, message_split, t_fe_time)
           break
+          '''
     return
 client.run_until_disconnected()
-'''
