@@ -53,7 +53,8 @@ async def handler(event):
   print("place : ", place)
 
   #============================================================
-
+  
+  checker(action, place, event)
   
 
   #for i in message_split:
@@ -116,7 +117,7 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
       for i in place_search:
         if i:
           print("message ok")
-          '''
+          
           message_split = message_low.split(" ")
           s = requests.session()
           payload = {
@@ -140,6 +141,20 @@ def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_tim
           feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
           successful_action(feed_id, live_time, event, message_split, t_fe_time)
           break
-          '''
+          
     return
+
+def checker (action, place, event):
+  if action == "drop":
+    print("Usual message without any info")
+  elif action == "empty":
+    print("I don't know this action, so let's check")
+    mongo_db_script.wrong_action.insert_one({"message": event.text})
+  elif place == "empty":
+    print("I don't know this place, so let's check")
+    mongo_db_script.wrong_place.insert_one({"message": event.text})
+
+
+
+
 client.run_until_disconnected()
