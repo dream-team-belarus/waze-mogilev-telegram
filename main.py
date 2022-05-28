@@ -26,6 +26,9 @@ async def handler(event):
   for x in arr:
     message_low = message_low.replace(x, " ")
   message_split = message_low.split(' ')
+  print("----------------------------")
+  print(event.text)
+
   
   action = "empty"
 
@@ -54,107 +57,21 @@ async def handler(event):
 
   #============================================================
   
-  checker(action, place, event)
-  
+  checker(action, place, event, live_time, t_fe_time)
 
-  #for i in message_split:
-  #  drop_search = mongo_db_source.actions.find({"drop": i}, {"drop":1})
-  #  if i == drop_search:
-  #    print("+", " ", i)
-
-  #
-  '''
-  for i in message_split:
-    drop_search = mongo_db_source.actions.find({"drop": i}, {"drop":1})
-    police_search = mongo_db_source.actions.find({"police": i}, {"police":1})
-    accident_search = mongo_db_source.actions.find({"accident": i}, {"accident":1})
-    help_search = mongo_db_source.actions.find({"help": i}, {"help":1})
-    for i in drop_search:
-      if i:
-        print(event.text,' dropped')
-        break
-    for i in police_search:
-      if i:
-        action="POLICE"
-        subtype="POLICE_VISIBLE"
-        caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype)
-        break
-    for i in accident_search:
-      if i:
-        action="ACCIDENT"
-        subtype="ACCIDENT_MINOR"
-        caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype)
-        break
-    for i in help_search:
-      if i:
-        print(event.text,' dropped. Temporary help is not support')
-        break'''
-
-
-def successful_action(feed_id, live_time, event, message_split, t_fe_time):
-    mongo_db_script.success.insert_one(
-            {"feed_id": feed_id, "feed_time": live_time, "message": event.text,
-             "fabrika": message_split, "remove": t_fe_time})
-    #mongo_db_script.success_history.insert_one({"_id": live_time, "message": event.text})
-    print('success ', live_time, ' ', event.text, ' ', feed_id)
-    print('---')
-
-
-def duplicate(event):
-  dublicate_search = mongo_db_script.success.find({"message": event.text}, {"message":1})
-  for i in dublicate_search:
-    if i:
-      print('record already exist so will skip this step')
-      return True
-    return False
-
-def caterpilar(event, life_time, live_time, message_low, message_split, t_fe_time, action, subtype):
-  result = duplicate(event)
-  if not result:
-    print('previous record did not find, so will add:')
-    for i in message_split:
-      place_search = mongo_db_source.places.find({"place": i},{"coordinate": 1, "place": 1, "street": 1})
-      for i in place_search:
-        if i:
-          print("message ok")
-          
-          message_split = message_low.split(" ")
-          s = requests.session()
-          payload = {
-            'LoginForm[username]': os.getenv("FEED_MAIN_LOGIN"),
-            'LoginForm[password]': os.getenv("FEED_MAIN_PASSWORD"),
-          }
-          s.post("https://feed.waze.su/ru/site/login/*", data=payload)
-          batch = {
-            'Feed[polyline]': i['coordinate'],
-            'Feed[starttime]': live_time,
-            'Feed[endtime]': life_time,
-            'Feed[direction]': 'BOTH_DIRECTIONS',
-            'Feed[type]': action,
-            'Feed[subtype]': subtype,
-            'Feed[description]': 'TELEGRAM',
-            'Feed[comment]': event.text,
-            'Feed[street]': i['street'],
-          }
-          response = s.post("https://feed.waze.su/ru/feed/create/*", data=batch)
-          result = str(set(re.findall(r"\b\w+\b=\d{5}", str(response.content))))
-          feed_id = str(set(re.findall(r"\d{5}", result)))[2:7]
-          successful_action(feed_id, live_time, event, message_split, t_fe_time)
-          break
-          
-    return
-
-def checker (action, place, event):
+def checker (action, place, event, live_time, t_fe_time):
   if action == "drop":
     print("Usual message without any info")
   elif action == "empty":
     print("I don't know this action, so let's check")
     mongo_db_script.wrong_action.insert_one({"message": event.text})
+    print("message added to base wrong actions for research")
   elif place == "empty":
     print("I don't know this place, so let's check")
     mongo_db_script.wrong_place.insert_one({"message": event.text})
-
-
-
+    print("message added to base wrong places for research")
+  else:
+    print("SUCCESS, move to database")
+    mongo_db_script.success.insert_one({"time": live_time, "message": event.text, "remove": t_fe_time})
 
 client.run_until_disconnected()
