@@ -26,11 +26,13 @@ async def handler(event):
   for x in arr:
     message_low = message_low.replace(x, " ")
   message_split = message_low.split(' ')
+  print(message_split)
+  print(type(message_split))
 
-  for i in message_split:
-    results = mongo_db_source.places.find({"place": i})
-    for result in results:
-      print(result)
+  #for i in message_split:
+  #  drop_search = mongo_db_source.actions.find({"drop": i}, {"drop":1})
+  #  if i == drop_search:
+  #    print("+", " ", i)
 
   #
   '''
